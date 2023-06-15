@@ -56,12 +56,23 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapGet("/", () =>
+app.MapGet("/Clientes", () =>
 {
     var clientes = contexto.Clientes.ToList();
    return clientes;
 })
 .WithName("Home")
+.WithOpenApi();
+
+app.MapPost("/Clientes", ([FromBody] Cliente cliente) =>
+{
+    contexto.Clientes.Add(new Cliente{
+                                        Nome = cliente.Nome, 
+                                        Telefone = cliente.Telefone
+                                     });
+    contexto.SaveChanges();
+})
+.WithName("CadastrarAluno")
 .WithOpenApi();
 
 app.Run();
