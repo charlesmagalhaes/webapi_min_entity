@@ -1,3 +1,23 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using webapi_min_entity.Contexto;
+using webapi_min_entity.Entidades;
+
+var contexto = new BancoDeDadosContexto();
+/*contexto.Clientes.Add(new Cliente{
+    Nome = "Douglas Dog", 
+    Telefone = "(31)99944-5454"
+});
+
+contexto.SaveChanges();*/
+
+var clientes = contexto.Clientes.ToList();
+
+/*var cliente = contexto.Clientes.First();
+cliente.Nome = "Douglas Hits";
+contexto.Update(cliente);
+contexto.SaveChanges();*/
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -38,9 +58,8 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapGet("/", () =>
 {
-   return new {
-    Mensagem = "Bem vindo a API com Entity FrameWork"
-   };
+    var clientes = contexto.Clientes.ToList();
+   return clientes;
 })
 .WithName("Home")
 .WithOpenApi();

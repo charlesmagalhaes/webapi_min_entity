@@ -18,5 +18,7 @@ public class BancoDeDadosContexto : DbContext
                 optionsBuilder.UseNpgsql(connectionString);
             }
     }
+
+    public DbSet<Cliente> Clientes {get;set;} = default!;
     
 }
