@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using webapi_min_entity.Contexto;
 using webapi_min_entity.Entidades;
+using webapi_min_entity.Request;
 
 var contexto = new BancoDeDadosContexto();
 /*contexto.Clientes.Add(new Cliente{
@@ -61,18 +62,77 @@ app.MapGet("/Clientes", () =>
     var clientes = contexto.Clientes.ToList();
    return clientes;
 })
-.WithName("Home")
+.WithName("ObterClientes")
 .WithOpenApi();
+
+app.MapGet("/Clientes/{matricula}", (int id) =>
+{
+    var cliente = contexto.Clientes.Find(id);
+    return cliente;
+
+})
+.WithName("ObterCliente")
+.WithOpenApi();
+
 
 app.MapPost("/Clientes", ([FromBody] Cliente cliente) =>
 {
-    contexto.Clientes.Add(new Cliente{
-                                        Nome = cliente.Nome, 
-                                        Telefone = cliente.Telefone
-                                     });
+    contexto
+    .Clientes
+    .Add(new Cliente
+                {
+                 Nome = cliente.Nome, 
+                 Telefone = cliente.Telefone
+                });
     contexto.SaveChanges();
 })
-.WithName("CadastrarAluno")
+.WithName("CadastrarCliente")
+.WithOpenApi();
+
+app.MapPut("/Clientes/{matricula}", (int id, Cliente cliente) =>
+{
+    var clienteChange = contexto.Clientes.Find(id);
+    if (clienteChange != null)
+    {
+        if (!string.IsNullOrEmpty(cliente.Nome))
+        {
+            clienteChange.Nome = cliente.Nome;
+        }
+
+        if (!string.IsNullOrEmpty(cliente.Telefone))
+        {
+            clienteChange.Telefone = cliente.Telefone;
+        }
+
+        contexto.Update(clienteChange);
+        contexto.SaveChanges();
+
+        return "Cliente atualizado com sucesso.";
+    }
+    else
+    {
+        return "Cliente não encontrado.";
+    }
+})
+.WithName("AtualizarCliente")
+.WithOpenApi();
+
+
+app.MapDelete("/Clientes/{matricula}", (int id) =>
+{
+    var cliente = contexto.Clientes.Find(id);
+    if (cliente != null)
+    {
+        contexto.Clientes.Remove(cliente);
+        contexto.SaveChanges();
+        return "Cliente excluído com sucesso.";
+    }
+    else
+    {
+        return "Cliente não encontrado.";
+    }
+})
+.WithName("DeletarCliente")
 .WithOpenApi();
 
 app.Run();
