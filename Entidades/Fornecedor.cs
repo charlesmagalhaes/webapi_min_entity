@@ -3,15 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace webapi_min_entity.Entidades;
 
-public record Cliente
+public record Fornecedor
 {
-   [Key]
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column(name: "cli_id")]
     public int Id {get;set;}
 
     [Required]
-    [MaxLength(100)]
+    [MaxLength(99)]
     [Column(name: "cli_nome")]
     public string Nome {get;set;} = default!;
 

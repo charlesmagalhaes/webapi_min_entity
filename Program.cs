@@ -37,26 +37,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
 app.MapGet("/Clientes", () =>
 {
     var clientes = contexto.Clientes.ToList();
@@ -75,14 +55,15 @@ app.MapGet("/Clientes/{matricula}", (int id) =>
 .WithOpenApi();
 
 
-app.MapPost("/Clientes", ([FromBody] Cliente cliente) =>
+app.MapPost("/Clientes", ([FromBody] ClienteRequest cliente) =>
 {
     contexto
     .Clientes
     .Add(new Cliente
                 {
                  Nome = cliente.Nome, 
-                 Telefone = cliente.Telefone
+                 Telefone = cliente.Telefone,
+                 Observacao = cliente.Observacao
                 });
     contexto.SaveChanges();
 })
@@ -102,6 +83,11 @@ app.MapPut("/Clientes/{matricula}", (int id, Cliente cliente) =>
         if (!string.IsNullOrEmpty(cliente.Telefone))
         {
             clienteChange.Telefone = cliente.Telefone;
+        }
+
+            if (!string.IsNullOrEmpty(cliente.Observacao))
+        {
+            clienteChange.Observacao = cliente.Observacao;
         }
 
         contexto.Update(clienteChange);
@@ -135,9 +121,12 @@ app.MapDelete("/Clientes/{matricula}", (int id) =>
 .WithName("DeletarCliente")
 .WithOpenApi();
 
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+app.MapGet("/Compras/Pedidos-Clientes", () =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+    var clientes = contexto.Pedidos.Include( p => p.Cliente).ToList();
+   return clientes;
+})
+.WithName("/Compras/PedidosClientes")
+.WithOpenApi();
+
+app.Run();
