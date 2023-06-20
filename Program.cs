@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using webapi_min_entity.Contexto;
 using webapi_min_entity.Entidades;
+using webapi_min_entity.ModelViews;
 using webapi_min_entity.Request;
 
 var contexto = new BancoDeDadosContexto();
@@ -12,7 +13,7 @@ var contexto = new BancoDeDadosContexto();
 
 contexto.SaveChanges();*/
 
-var clientes = contexto.Clientes.ToList();
+//8var clientes = contexto.Clientes.ToList();*/
 
 /*var cliente = contexto.Clientes.First();
 cliente.Nome = "Douglas Hits";
@@ -121,10 +122,27 @@ app.MapDelete("/Clientes/{matricula}", (int id) =>
 .WithName("DeletarCliente")
 .WithOpenApi();
 
-app.MapGet("/Compras/Pedidos-Clientes", () =>
+app.MapGet("/Compras/Pedidos-Clientes", ([FromQuery] int page) =>
 {
-    var clientes = contexto.Pedidos.Include( p => p.Cliente).ToList();
-   return clientes;
+    var totalPage = 4;
+    if(page == null || page < 1) page = 1;
+    int offset = ((int)page - 1) * totalPage;
+    
+    var clientesLista = contexto.Pedidos.Include( p => p.Cliente).Select( p => new PedidoCliente {
+        Nome = p.Cliente.Nome,
+        Telefone = p.Cliente.Telefone,
+        ValorTotal = p.ValorTotal
+    });
+
+    var clientesPaginado = clientesLista.Skip(offset).Take(totalPage).ToList();
+
+   return new RegistroPaginado<PedidoCliente> {
+        TotalPorPagina = totalPage,
+        PaginaAtual = (int)page,
+        Registros = clientesPaginado,
+        TotalRegistros = clientesLista.Count()
+
+   };
 })
 .WithName("/Compras/PedidosClientes")
 .WithOpenApi();

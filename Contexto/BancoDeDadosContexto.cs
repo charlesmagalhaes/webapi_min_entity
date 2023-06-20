@@ -37,6 +37,7 @@ namespace webapi_min_entity.Contexto
         private void ConfigureCliente(EntityTypeBuilder<Cliente> builder)
         {
             builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id).ValueGeneratedOnAdd().HasColumnName("cli_id");
             builder.Property(c => c.Nome).IsRequired().HasMaxLength(100).HasColumnName("cli_nome");
             builder.Property(c => c.Telefone).IsRequired().HasMaxLength(20).HasColumnName("cli_telefone");
             builder.Property(c => c.Observacao).HasColumnType("text").HasColumnName("cli_observacao");
