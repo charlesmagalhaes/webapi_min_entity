@@ -9,6 +9,8 @@ namespace webapi_min_entity.Contexto
 {
     public class BancoDeDadosContexto : DbContext
     {
+        private const string Name = "conexao";
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -18,7 +20,7 @@ namespace webapi_min_entity.Contexto
                     .AddJsonFile("appsettings.json")
                     .Build();
 
-                string connectionString = configuration.GetConnectionString("conexao");
+                string connectionString = configuration.GetConnectionString(Name) ?? "";
                 optionsBuilder.UseNpgsql(connectionString);
             }
         }

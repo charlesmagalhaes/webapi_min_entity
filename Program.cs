@@ -4,6 +4,7 @@ using webapi_min_entity.Contexto;
 using webapi_min_entity.Entidades;
 using webapi_min_entity.ModelViews;
 using webapi_min_entity.Request;
+using webapi_min_entity.Routes;
 
 var contexto = new BancoDeDadosContexto();
 /*contexto.Clientes.Add(new Cliente{
@@ -36,115 +37,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+new ClienteService(app).Register();
+new FornecedorService(app).Register();
+new PedidoService(app).Register();
+new ProdutoService(app).Register();
+new PedidoProdutoService(app).Register();
 
-app.MapGet("/Clientes", () =>
-{
-    var clientes = contexto.Clientes.ToList();
-   return clientes;
-})
-.WithName("ObterClientes")
-.WithOpenApi();
-
-app.MapGet("/Clientes/{matricula}", (int id) =>
-{
-    var cliente = contexto.Clientes.Find(id);
-    return cliente;
-
-})
-.WithName("ObterCliente")
-.WithOpenApi();
-
-
-app.MapPost("/Clientes", ([FromBody] ClienteRequest cliente) =>
-{
-    contexto
-    .Clientes
-    .Add(new Cliente
-                {
-                 Nome = cliente.Nome, 
-                 Telefone = cliente.Telefone,
-                 Observacao = cliente.Observacao
-                });
-    contexto.SaveChanges();
-})
-.WithName("CadastrarCliente")
-.WithOpenApi();
-
-app.MapPut("/Clientes/{matricula}", (int id, Cliente cliente) =>
-{
-    var clienteChange = contexto.Clientes.Find(id);
-    if (clienteChange != null)
-    {
-        if (!string.IsNullOrEmpty(cliente.Nome))
-        {
-            clienteChange.Nome = cliente.Nome;
-        }
-
-        if (!string.IsNullOrEmpty(cliente.Telefone))
-        {
-            clienteChange.Telefone = cliente.Telefone;
-        }
-
-            if (!string.IsNullOrEmpty(cliente.Observacao))
-        {
-            clienteChange.Observacao = cliente.Observacao;
-        }
-
-        contexto.Update(clienteChange);
-        contexto.SaveChanges();
-
-        return "Cliente atualizado com sucesso.";
-    }
-    else
-    {
-        return "Cliente não encontrado.";
-    }
-})
-.WithName("AtualizarCliente")
-.WithOpenApi();
-
-
-app.MapDelete("/Clientes/{matricula}", (int id) =>
-{
-    var cliente = contexto.Clientes.Find(id);
-    if (cliente != null)
-    {
-        contexto.Clientes.Remove(cliente);
-        contexto.SaveChanges();
-        return "Cliente excluído com sucesso.";
-    }
-    else
-    {
-        return "Cliente não encontrado.";
-    }
-})
-.WithName("DeletarCliente")
-.WithOpenApi();
-
-app.MapGet("/Compras/Pedidos-Clientes", ([FromQuery] int page) =>
-{
-    var totalPage = 4;
-    if(page == null || page < 1) page = 1;
-    int offset = ((int)page - 1) * totalPage;
-    
-    var clientesLista = contexto.Pedidos.Include( p => p.Cliente).Select( p => new PedidoCliente {
-        Nome = p.Cliente.Nome,
-        Telefone = p.Cliente.Telefone,
-        ValorTotal = p.ValorTotal
-    });
-
-    var clientesPaginado = clientesLista.Skip(offset).Take(totalPage).ToList();
-
-   return new RegistroPaginado<PedidoCliente> {
-        TotalPorPagina = totalPage,
-        PaginaAtual = (int)page,
-        Registros = clientesPaginado,
-        TotalRegistros = clientesLista.Count()
-
-   };
-})
-.WithName("/Compras/PedidosClientes")
-.WithOpenApi();
 
 app.Run();
